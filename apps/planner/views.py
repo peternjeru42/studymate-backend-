@@ -7,6 +7,7 @@ from rest_framework.routers import DefaultRouter
 
 from apps.common.responses import api_response
 from apps.common.viewsets import UserOwnedModelViewSet
+from apps.ai_engine.services import AIServiceError
 from apps.planner.models import AvailabilityBlock, StudyPlan
 from apps.planner.serializers import AvailabilityBlockSerializer, PlannerGenerateSerializer, StudyPlanSerializer
 from apps.planner.services import PlannerOrchestratorService
@@ -28,7 +29,10 @@ class PlannerGenerateAPIView(APIView):
     def post(self, request):
         serializer = PlannerGenerateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        plan = PlannerOrchestratorService.generate_plan(user=request.user, validated_data=serializer.validated_data)
+        try:
+            plan = PlannerOrchestratorService.generate_plan(user=request.user, validated_data=serializer.validated_data)
+        except AIServiceError as exc:
+            return api_response(error=str(exc), status_code=status.HTTP_503_SERVICE_UNAVAILABLE)
         return api_response(
             data=StudyPlanSerializer(plan).data,
             message="Study plan generated successfully.",
@@ -42,7 +46,10 @@ class PlannerRegenerateAPIView(APIView):
     def post(self, request):
         plan_id = request.data.get("plan_id")
         plan = get_object_or_404(StudyPlan, user=request.user, id=plan_id)
-        new_plan = PlannerOrchestratorService.regenerate_plan(user=request.user, plan=plan)
+        try:
+            new_plan = PlannerOrchestratorService.regenerate_plan(user=request.user, plan=plan)
+        except AIServiceError as exc:
+            return api_response(error=str(exc), status_code=status.HTTP_503_SERVICE_UNAVAILABLE)
         return api_response(data=StudyPlanSerializer(new_plan).data, message="Study plan regenerated successfully.")
 
 

@@ -4,6 +4,10 @@ from django.db import models
 from apps.common.models import TimeStampedModel, UUIDPrimaryKeyModel
 
 
+def default_study_styles():
+    return ["visual"]
+
+
 class User(AbstractUser, UUIDPrimaryKeyModel, TimeStampedModel):
     username = None
     email = models.EmailField(unique=True)
@@ -50,6 +54,7 @@ class StudyPreference(UUIDPrimaryKeyModel, TimeStampedModel):
     session_duration = models.PositiveIntegerField(default=90)
     break_duration = models.PositiveIntegerField(default=15)
     study_style = models.CharField(max_length=20, choices=StudyStyle.choices, default=StudyStyle.VISUAL)
+    study_styles = models.JSONField(default=default_study_styles, blank=True)
     max_sessions_per_day = models.PositiveIntegerField(default=3)
 
     def __str__(self):

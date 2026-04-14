@@ -26,6 +26,12 @@ class StudentProfileSerializer(serializers.ModelSerializer):
 
 
 class StudyPreferenceSerializer(serializers.ModelSerializer):
+    study_styles = serializers.ListField(
+        child=serializers.ChoiceField(choices=StudyPreference.StudyStyle.choices),
+        required=False,
+        allow_empty=False,
+    )
+
     class Meta:
         model = StudyPreference
         fields = (
@@ -33,8 +39,28 @@ class StudyPreferenceSerializer(serializers.ModelSerializer):
             "session_duration",
             "break_duration",
             "study_style",
+            "study_styles",
             "max_sessions_per_day",
         )
+
+    def validate(self, attrs):
+        study_styles = attrs.get("study_styles")
+        study_style = attrs.get("study_style")
+
+        if study_styles is not None:
+            attrs["study_style"] = study_styles[0]
+            return attrs
+
+        if study_style is not None:
+            attrs["study_styles"] = [study_style]
+            return attrs
+
+        instance = getattr(self, "instance", None)
+        if instance and instance.study_styles:
+            attrs["study_styles"] = instance.study_styles
+            attrs["study_style"] = instance.study_styles[0]
+
+        return attrs
 
 
 class NotificationPreferenceSerializer(serializers.ModelSerializer):

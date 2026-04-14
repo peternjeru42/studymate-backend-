@@ -49,7 +49,7 @@ def test_profile_and_preferences_update(auth_client):
                 "preferred_study_time": "morning",
                 "session_duration": 60,
                 "break_duration": 10,
-                "study_style": "visual",
+                "study_styles": ["visual", "auditory"],
                 "max_sessions_per_day": 4,
             }
         },
@@ -57,6 +57,8 @@ def test_profile_and_preferences_update(auth_client):
     )
     assert preferences_response.status_code == 200
     assert preferences_response.json()["data"]["study_preferences"]["session_duration"] == 60
+    assert preferences_response.json()["data"]["study_preferences"]["study_style"] == "visual"
+    assert preferences_response.json()["data"]["study_preferences"]["study_styles"] == ["visual", "auditory"]
 
 
 @pytest.mark.django_db
