@@ -8,8 +8,8 @@ BASE_DIR = Path(__file__).resolve().parents[2]
 env = environ.Env(
     DEBUG=(bool, False),
     ALLOWED_HOSTS=(list, ["localhost", "127.0.0.1"]),
-    CORS_ALLOWED_ORIGINS=(list, ["http://localhost:3000"]),
-    CSRF_TRUSTED_ORIGINS=(list, ["http://localhost:8000", "http://localhost:3000"]),
+    CORS_ALLOWED_ORIGINS=(list, ["http://localhost:3000", "http://127.0.0.1:3000"]),
+    CSRF_TRUSTED_ORIGINS=(list, ["http://localhost:8000", "http://localhost:3000", "http://127.0.0.1:3000"]),
 )
 
 environ.Env.read_env(BASE_DIR / ".env")
@@ -146,4 +146,3 @@ OPENAI_API_KEY = env("OPENAI_API_KEY", default="")
 OPENAI_MODEL = env("OPENAI_MODEL", default="gpt-4.1-mini")
 
 LOGIN_REDIRECT_URL = "/admin/"
-
